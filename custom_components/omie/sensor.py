@@ -10,7 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 DOMAIN = "omie_spot"
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    add_entities([OMIESpotSensor(url)], True)
+    add_entities([OMIESpotSensor()], True)
 
 class OMIESpotSensor(SensorEntity):
     def __init__(self, url):
