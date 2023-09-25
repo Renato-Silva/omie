@@ -13,8 +13,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     add_entities([OMIESpotSensor()], True)
 
 class OMIESpotSensor(SensorEntity):
-    def __init__(self, url):
-        self._url = "https://www.omie.es/sites/default/files/dados/NUEVA_SECCION/INT_PBC_EV_H_ACUM.TXT"
+    def __init__(self):
         self._state = None
         self._attributes = {}
 
@@ -32,7 +31,7 @@ class OMIESpotSensor(SensorEntity):
 
     def update(self):
         try:
-            response = requests.get(self._url)
+            response = requests.get("https://www.omie.es/sites/default/files/dados/NUEVA_SECCION/INT_PBC_EV_H_ACUM.TXT")
 
             if response.status_code == 200:
                 content = response.text
