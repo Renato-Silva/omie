@@ -16,7 +16,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     add_entities([OMIESpotSensor(url)], True)
 
 class OMIESpotSensor(SensorEntity):
-    def __init__(self, url, css_selector):
+    def __init__(self, url):
         self._url = url
         self._state = None
         self._attributes = {}
@@ -55,8 +55,7 @@ class OMIESpotSensor(SensorEntity):
                     desired_value = values[3].strip()
                     desired_value_float = float(desired_value.replace(',', '.'))
 
-                    self._state = "Data Parsed"
-                    self._attributes = desired_value_float / 1000
+                    self._state = desired_value_float / 1000
                 else:
                     _LOGGER.error("Not found.")
             else:
