@@ -8,16 +8,13 @@ from homeassistant.const import ATTR_ATTRIBUTION
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "omie_spot"
-CONF_URL = "https://www.omie.es/sites/default/files/dados/NUEVA_SECCION/INT_PBC_EV_H_ACUM.TXT"
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    url = config[CONF_URL]
-
     add_entities([OMIESpotSensor(url)], True)
 
 class OMIESpotSensor(SensorEntity):
     def __init__(self, url):
-        self._url = url
+        self._url = "https://www.omie.es/sites/default/files/dados/NUEVA_SECCION/INT_PBC_EV_H_ACUM.TXT"
         self._state = None
         self._attributes = {}
 
