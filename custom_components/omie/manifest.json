@@ -4,9 +4,9 @@
   "dependencies": [],
   "documentation": "https://github.com/Renato-Silva/omnies",
   "issue_tracker": "https://github.com/Renato-Silva/omnies/issues",
-  "domain": "omie_spot",
+  "domain": "omie",
   "iot_class": "cloud_polling",
-  "name": "Omie Portugal",
+  "name": "Omie Energy",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
