@@ -3,11 +3,16 @@
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.const import CURRENCY_EURO
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.discovery import async_discover
 
 from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN
 
 class OmieSensor(Entity):
-    """Representation of a Price Sensor in Euro."""
+    sensor_entities = []
+
+    portugal_sensor = OmieSensor(coordinator, SENSOR_PORTUGAL)
+    spain_sensor = OmieSensor(coordinator, SENSOR_SPAIN)
+    sensor_entities.extend([portugal_sensor, spain_sensor])
 
     def __init__(self, coordinator, sensor_name):
         """Initialize the Omie price sensor."""
@@ -28,6 +33,16 @@ class OmieSensor(Entity):
     def unit_of_measurement(self):
         """Return the unit of measurement of the sensor."""
         return CURRENCY_EURO
+
+    for sensor in sensor_entities:
+        async_discover(
+            hass,
+            sensor.config_entry.entry_id,
+            "sensor",
+            sensor.name,
+            sensor.device_info,
+        )
+    async_add_entities(sensor_entities, True)
 
     async def async_update(self):
         """Update the sensor's state."""
