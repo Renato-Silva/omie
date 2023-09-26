@@ -5,7 +5,7 @@ import asyncio
 import logging
 from datetime import timedelta
 import requests
-
+import aiohttp
 import voluptuous as vol
 from homeassistant.const import (
     CONF_NAME,
@@ -19,7 +19,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.components.discovery import SERVICE_HOMEASSISTANT
 from homeassistant.helpers import discovery
 
-from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN, DEFAULT_NAME, OMIE_URL, CONF_NAME
+from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN, DEFAULT_NAME, OMIE_URL
 from .sensor import OmieSensor
 
 # Set up the logger
