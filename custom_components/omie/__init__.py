@@ -76,9 +76,6 @@ async def async_fetch_data():
                         _LOGGER.error("Not found.")
                 else:
                     raise UpdateFailed(f"Error fetching data: {response.status}")
-
-        else:
-            _LOGGER.error(f"Failed to retrieve data. Status code: {response.status_code}")
     except Exception as e:
         raise UpdateFailed(f"Error fetching data: {e}") from e
 
