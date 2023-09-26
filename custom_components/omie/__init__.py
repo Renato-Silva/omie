@@ -18,6 +18,7 @@ from homeassistant.helpers.update_coordinator import (
 import homeassistant.helpers.config_validation as cv
 
 from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN, DEFAULT_NAME, OMIE_URL, CONF_NAME
+from .sensor import OmieSensor
 
 # Set up the logger
 _LOGGER = logging.getLogger(__name__)
@@ -43,38 +44,39 @@ async def async_fetch_data():
     """Fetch data for the Omie Integration."""
     try:
 
+        async with aiohttp.ClientSession() as session:
+            async with session.get(OMIE_URL) as response:
+                if response.status == 200:
+                    content = await response.text()
+                    current_datetime = datetime.now()
+                    hour = current_datetime.hour + 1
+                    formatted_hour = str(hour)
+                    formatted_datetime = current_datetime.strftime("%d/%m/%Y;{};".format(formatted_hour))
 
-        response = requests.get(OMIE_URL)
+                    lines = content.split('\n')
 
-        if response.status_code == 200:
-            content = response.text
-            current_datetime = datetime.now()
-            hour = current_datetime.hour + 1
-            formatted_hour = str(hour)
-            formatted_datetime = current_datetime.strftime("%d/%m/%Y;{};".format(formatted_hour))
+                    found_line = None
+                    for line in lines:
+                        if line.startswith(formatted_datetime):
+                            found_line = line
+                            break
 
-            lines = content.split('\n')
+                    if found_line:
+                        values = found_line.split(';')
+                        desired_value_pt = values[3].strip()
+                        desired_value_es = values[2].strip()
+                        desired_value_float_pt = float(desired_value_pt.replace(',', '.'))
+                        desired_value_float_es = float(desired_value_es.replace(',', '.'))
 
-            found_line = None
-            for line in lines:
-                if line.startswith(formatted_datetime):
-                    found_line = line
-                    break
+                        portugal_price = desired_value_float_pt / 1000
+                        spain_price = desired_value_float_es / 1000
 
-            if found_line:
-                values = found_line.split(';')
-                desired_value_pt = values[3].strip()
-                desired_value_es = values[2].strip()
-                desired_value_float_pt = float(desired_value_pt.replace(',', '.'))
-                desired_value_float_es = float(desired_value_es.replace(',', '.'))
+                        return {SENSOR_PORTUGAL: portugal_price, SENSOR_SPAIN: spain_price}
+                    else:
+                        _LOGGER.error("Not found.")
+                else:
+                    raise UpdateFailed(f"Error fetching data: {response.status}")
 
-                portugal_price = desired_value_float_pt / 1000
-                spain_price = desired_value_float_es / 1000
-
-                return {SENSOR_PORTUGAL: portugal_price, SENSOR_SPAIN: spain_price}
-
-            else:
-                _LOGGER.error("Not found.")
         else:
             _LOGGER.error(f"Failed to retrieve data. Status code: {response.status_code}")
     except Exception as e:
