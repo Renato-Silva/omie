@@ -16,7 +16,6 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.discovery import SERVICE_HOMEASSISTANT
 from homeassistant.helpers import discovery
 
 from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN, DEFAULT_NAME, OMIE_URL
@@ -84,9 +83,6 @@ async def async_fetch_data():
 async def async_setup(hass, config):
     """Set up the custom Omie integration."""
 
-    # Get the user-defined configuration
-    conf = DOMAIN
-
     # Create a data coordinator to manage data updates
     coordinator = DataUpdateCoordinator(
         hass,
@@ -104,13 +100,10 @@ async def async_setup(hass, config):
     hass.data[DOMAIN][SENSOR_PORTUGAL] = OmieSensor(coordinator, SENSOR_PORTUGAL)
     hass.data[DOMAIN][SENSOR_SPAIN] = OmieSensor(coordinator, SENSOR_SPAIN)
 
-    async def discovery_callback(service, discovery_info):
-        if service == SERVICE_HOMEASSISTANT:
-            await discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config)
-
-    hass.async_create_task(
-        discovery.async_listen_discovery(hass, discovery_callback)
-    )
+    async_add_entities([
+        hass.data[DOMAIN][SENSOR_PORTUGAL],
+        hass.data[DOMAIN][SENSOR_SPAIN],
+    ], True)
 
     return True
 

@@ -1,6 +1,6 @@
 """Constants for the Omie Integration."""
 
-DEFAULT_NAME = "Omie Integration"
+DEFAULT_NAME = "Omie Energy"
 
 # Integration domain (used for configuration, services, etc.)
 DOMAIN = "omie"
