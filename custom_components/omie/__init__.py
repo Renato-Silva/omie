@@ -17,7 +17,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 import homeassistant.helpers.config_validation as cv
 
-from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN, DEFAULT_NAME, OMIE_URL
+from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN, DEFAULT_NAME, OMIE_URL, CONF_NAME
 
 # Set up the logger
 _LOGGER = logging.getLogger(__name__)
@@ -84,13 +84,13 @@ async def async_setup(hass, config):
     """Set up the custom Omie integration."""
 
     # Get the user-defined configuration
-    conf = config.get(DOMAIN)
+    conf = DOMAIN
 
     # Create a data coordinator to manage data updates
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        name=conf.get(CONF_NAME),
+        name=CONF_NAME,
         update_method=async_fetch_data,
         update_interval=DEFAULT_UPDATE_INTERVAL,
     )
