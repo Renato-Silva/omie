@@ -1,63 +1,38 @@
-import json
-import logging
-import requests
-from datetime import datetime
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import ATTR_ATTRIBUTION
+"""Sensor platform for the Omie Integration."""
 
-_LOGGER = logging.getLogger(__name__)
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.const import CURRENCY_EURO
+from homeassistant.helpers.entity import Entity
 
-DOMAIN = "omie_spot"
+from .const import DOMAIN, SENSOR_PORTUGAL, SENSOR_SPAIN
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    add_entities([OMIESpotSensor()], True)
+class OmieSensor(Entity):
+    """Representation of a Price Sensor in Euro."""
 
-class OMIESpotSensor(SensorEntity):
-    def __init__(self):
-        self._state = None
-        self._attributes = {}
+    def __init__(self, coordinator, sensor_name):
+        """Initialize the Omie price sensor."""
+        self._coordinator = coordinator
+        self._sensor_name = sensor_name
 
     @property
     def name(self):
-        return "OMIE Spot Data"
+        """Return the name of the sensor."""
+        return f"Omie {self._sensor_name.capitalize()} Price"
 
     @property
     def state(self):
-        return self._state
+        """Return the state of the sensor."""
+        return self._coordinator.data.get(self._sensor_name)
 
     @property
-    def extra_state_attributes(self):
-        return self._attributes
+    def unit_of_measurement(self):
+        """Return the unit of measurement of the sensor."""
+        return CURRENCY_EURO
 
-    def update(self):
+    async def async_update(self):
+        """Update the sensor's state."""
         try:
-            response = requests.get("https://www.omie.es/sites/default/files/dados/NUEVA_SECCION/INT_PBC_EV_H_ACUM.TXT")
-
-            if response.status_code == 200:
-                content = response.text
-                current_datetime = datetime.now()
-                hour = current_datetime.hour + 1
-                formatted_hour = str(hour)
-                formatted_datetime = current_datetime.strftime("%d/%m/%Y;{};".format(formatted_hour))
-
-                lines = content.split('\n')
-
-                found_line = None
-                for line in lines:
-                    if line.startswith(formatted_datetime):
-                        found_line = line
-                        break
-
-                if found_line:
-                    values = found_line.split(';')
-                    desired_value = values[3].strip()
-                    desired_value_float = float(desired_value.replace(',', '.'))
-
-                    self._state = desired_value_float / 1000
-                else:
-                    _LOGGER.error("Not found.")
-            else:
-                _LOGGER.error(f"Failed to retrieve data. Status code: {response.status_code}")
-
-        except Exception as e:
-            _LOGGER.error(f"An error occurred: {str(e)}")
+            await self._coordinator.async_request_refresh()
+        except UpdateFailed as e:
+            # Handle failed data update (e.g., connection error)
+            self._coordinator.last_update_success = False
