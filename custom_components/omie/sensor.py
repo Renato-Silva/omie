@@ -36,7 +36,9 @@ class OMIESpotSensor(SensorEntity):
             if response.status_code == 200:
                 content = response.text
                 current_datetime = datetime.now()
-                formatted_datetime = current_datetime.strftime("%d/%m/%Y;%H;")
+                hour = current_datetime.hour + 1
+                formatted_hour = str(hour)
+                formatted_datetime = current_datetime.strftime("%d/%m/%Y;{};".format(formatted_hour))
 
                 lines = content.split('\n')
 
